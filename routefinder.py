@@ -45,9 +45,18 @@ def h1(state) :
 
 ## you do this - return the straight-line distance between the state and (1,1)
 def sld(state) :
-    sqt(a^ + b2)
+
+    #sqt(a^ + b2)
+    pass
 
 ## you implement this. Open the file filename, read in each line,
 ## construct a Graph object and assign it to self.mars_graph().
 def read_mars_graph(filename):
-    pass
+
+    try:
+        with open(filename, 'rb') as f:
+            print(f.readlines())
+    except IOError:
+        print("Boom")
+
+read_mars_graph("marsmap.docx")

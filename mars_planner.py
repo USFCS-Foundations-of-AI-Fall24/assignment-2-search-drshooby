@@ -14,7 +14,8 @@
 ## Charged can be True or False
 
 from copy import deepcopy
-from search_algorithms import breadth_first_search
+from search_algorithms import breadth_first_search, depth_first_search
+
 
 class RoverState :
     def __init__(self, loc="station", sample_extracted=False, holding_sample=False, holding_tool=False, sample_dropped_off=False, charged=False):
@@ -41,7 +42,8 @@ class RoverState :
         return (f"Location: {self.loc}\n" +
                 f"Sample Extracted?: {self.sample_extracted}\n"+
                 f"Holding Sample?: {self.holding_sample}\n" +
-                f"Charged? {self.charged}")
+                f"Charged? {self.charged}\n" +
+                f"Sample Dropped Off?: {self.sample_dropped_off}\n") # added sample dropped off for goal func
 
     def __hash__(self):
         return self.__repr__().__hash__()
@@ -51,18 +53,16 @@ class RoverState :
         ## apply each function in the list of actions to the current state to get
         ## a new state.
         ## add the name of the function also
-        if limit != 0:
-            if depth <= limit:
+        if limit != 0: # check if we have a limit
+            if depth <= limit: # make sure we are within the limit
                 succ = [(item(self), item.__name__, depth) for item in list_of_actions]
                 ## remove actions that have no effect
-
                 succ = [item for item in succ if not item[0] == self]
             else:
                 return []
         else:
             succ = [(item(self), item.__name__, depth) for item in list_of_actions]
             ## remove actions that have no effect
-
             succ = [item for item in succ if not item[0] == self]
         return succ
 
@@ -138,7 +138,6 @@ action_list = [charge, drop_sample, pick_up_sample,
 
 def battery_goal(state) :
     return state.loc == "battery"
-## add your goals here.
 
 def charge_goal(state) :
     return state.charged
@@ -152,7 +151,10 @@ def mission_complete(state) :
 
 if __name__=="__main__" :
     s = RoverState()
-    result = breadth_first_search(s, action_list, mission_complete)
+    #bfs -> startState, action_list, goal_test, use_closed_list=True
+    #dfs -> startState, action_list, goal_test, use_closed_list=True,limit=0
+    #result = breadth_first_search(s, action_list, mission_complete)
+    result = depth_first_search(s, action_list, mission_complete, True, 10)
     print(result)
 
 
