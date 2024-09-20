@@ -39,10 +39,34 @@ def a_star(start_state, heuristic_fn, goal_test, use_closed_list=True) :
     closed_list = {}
     search_queue.put(start_state)
 
+    while search_queue:
+        curr_state = search_queue.get()
 
+        if goal_test(curr_state):
+            return curr_state
 
-    ## you do the rest.
+        if use_closed_list:
+            closed_list[curr_state] = True
 
+        for edge in curr_state.mars_graph.get_edges(curr_state.location):
+            neighbor = edge.dest
+            new_g, new_h = curr_state.g + edge.val, heuristic_fn(neighbor)
+
+            neighbor_state = map_state(
+                neighbor,
+                curr_state.mars_graph,
+                curr_state,
+                new_g,
+                new_h
+            )
+
+            if use_closed_list and neighbor_state in closed_list:
+                continue
+
+            search_queue.put(neighbor_state)
+
+    print("A* was unable to find end state")
+    return None
 
 ## default heuristic - we can use this to implement uniform cost search
 def h1(state) :
@@ -50,22 +74,24 @@ def h1(state) :
 
 ## you do this - return the straight-line distance between the state and (1,1)
 def sld(state) :
-    x, y = state.location.split(',')
+    x, y = state.split(',')
     return math.sqrt(
-        (int(x) - 1) ** 2 + (int(y) - 1) ** 2
+        ((int(x) - 1) ** 2) + ((int(y) - 1) ** 2)
     )
+
+## manhattan just to test
+def manhattan(state) :
+    x, y = state.split(',')
+    return abs(int(x) - 1) + abs(int(y) - 1)
 
 ## you implement this. Open the file filename, read in each line,
 ## construct a Graph object and assign it to self.mars_graph().
 def read_mars_graph(filename):
-    # 1,1: 2,1 1,2... src: edge1 edge2 etc
     try:
         with open(filename, 'r') as f:
-            lines = [line.strip().split(":") for line in f.readlines()]
-            edges = {line[0]: line[1].split(" ")[1:] for line in lines}
-
+            # 1,1: 2,1 1,2... src: edge1 edge2 etc
+            edges = {src: neighbors.split(" ")[1:] for (src, neighbors) in [line.strip().split(":") for line in f.readlines()]}
             g = Graph()
-
             for src, neighbors in edges.items():
                 g.add_node(src)
                 for neighbor in neighbors:
@@ -75,5 +101,10 @@ def read_mars_graph(filename):
     except IOError:
         print("Boom")
 
-map = map_state(mars_graph=read_mars_graph("marsmapvalues.txt"))
+def goal(s):
+    return s.location == "1,1"
+
+state = map_state(location='8,3', mars_graph=read_mars_graph("marsmapvalues.txt"))
+r = a_star(state, manhattan, goal)
+print(r)
 
