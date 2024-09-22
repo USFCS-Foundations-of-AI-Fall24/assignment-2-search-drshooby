@@ -35,15 +35,17 @@ class map_state() :
 
 
 def a_star(start_state, heuristic_fn, goal_test, use_closed_list=True) :
+    state_count = 0
     search_queue = PriorityQueue()
     closed_list = {}
     search_queue.put(start_state)
 
     while search_queue:
         curr_state = search_queue.get()
+        state_count += 1
 
         if goal_test(curr_state):
-            return curr_state
+            return curr_state, state_count
 
         if use_closed_list:
             closed_list[curr_state] = True
@@ -65,8 +67,7 @@ def a_star(start_state, heuristic_fn, goal_test, use_closed_list=True) :
 
             search_queue.put(neighbor_state)
 
-    print("A* was unable to find end state")
-    return None
+    return None, state_count
 
 ## default heuristic - we can use this to implement uniform cost search
 def h1(state) :
@@ -74,6 +75,8 @@ def h1(state) :
 
 ## you do this - return the straight-line distance between the state and (1,1)
 def sld(state) :
+    if isinstance(state, map_state):
+        state = state.location
     x, y = state.split(',')
     return math.sqrt(
         ((int(x) - 1) ** 2) + ((int(y) - 1) ** 2)
@@ -104,7 +107,21 @@ def read_mars_graph(filename):
 def goal(s):
     return s.location == "1,1"
 
-state = map_state(location='8,3', mars_graph=read_mars_graph("marsmapvalues.txt"))
-r = a_star(state, manhattan, goal)
-print(r)
+def main():
+    # from sample (8,8) to charger (1,1)
+    state = map_state(location='8,8', mars_graph=read_mars_graph("marsmapvalues.txt"))
+    print("\nTESTING A*\n")
+    print("SLD HEURISTIC\n")
+    end_state, state_count = a_star(state, sld, goal)
+    print("states generated =", state_count)
+    print("end state =", end_state if end_state else "Something went wrong, end state doesn't exist")
+
+    print("\nH1 HEURISTIC\n")
+    state2 = map_state(location='8,8', mars_graph=read_mars_graph("marsmapvalues.txt"))
+    end_state2, state_count2 = a_star(state2, h1, goal)
+    print("states generated =", state_count2)
+    print("end state =", end_state2 if end_state2 else "Something went wrong, end state2 doesn't exist")
+
+if __name__ == "__main__":
+    main()
 
