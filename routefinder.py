@@ -33,7 +33,6 @@ class map_state() :
     def is_goal(self):
         return self.location == '1,1'
 
-
 def a_star(start_state, heuristic_fn, goal_test, use_closed_list=True) :
     state_count = 0
     search_queue = PriorityQueue()
@@ -52,7 +51,8 @@ def a_star(start_state, heuristic_fn, goal_test, use_closed_list=True) :
 
         for edge in curr_state.mars_graph.get_edges(curr_state.location):
             neighbor = edge.dest
-            new_g, new_h = curr_state.g + edge.val, heuristic_fn(neighbor)
+            new_g = curr_state.g + 1 + edge.val # graph is unweighted, edge val should be 0
+            new_h = heuristic_fn(neighbor)
 
             neighbor_state = map_state(
                 neighbor,
