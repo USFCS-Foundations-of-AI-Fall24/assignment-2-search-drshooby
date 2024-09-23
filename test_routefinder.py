@@ -10,6 +10,6 @@ class Testmap_state(TestCase):
 
 
     def test_sld(self) :
-        s1 = map_state(g = 1,h=1)
+        s1 = map_state(location='4,4', g=1,h=1)
         val = sld(s1)
         self.assertLessEqual(val, 14)

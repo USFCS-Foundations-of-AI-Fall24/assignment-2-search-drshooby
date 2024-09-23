@@ -1,7 +1,6 @@
 from unittest import TestCase
-from mars_planner import *
-#from romania_state import *
-from search_algorithms import *
+from search_algorithms import breadth_first_search, depth_first_search
+from mars_planner import RoverState, action_list
 
 
 class Test(TestCase):
